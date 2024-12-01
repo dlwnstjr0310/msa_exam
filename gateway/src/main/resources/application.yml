@@ -1,0 +1,56 @@
+eureka:
+  instance:
+    prefer-ip-address: false
+    instance-id: gateway-server
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_NAME}:${EUREKA_PORT}/${EUREKA_HOST}/
+    region: ap-northeast-2
+
+spring:
+  main:
+    web-application-type: reactive
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_HOST}
+  config:
+    import: classpath:application-key.yml
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: ${FIRST_ID}
+          uri: lb://${FIRST_URI}
+          predicates:
+            - Path=${FIRST_PATH}
+        - id: ${SECOND_ID}
+          uri: lb://${SECOND_URI}
+          predicates:
+            - Path=${SECOND_PATH}
+        - id: ${THIRD_ID}
+          uri: lb://${THIRD_URI}
+          predicates:
+            - Path=${THIRD_PATH}
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth Service
+        url: /auth-server/api-docs
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+
+security:
+  jwt:
+    key: ${SECURITY_JWT_KEY}
+server:
+  port: 19091
