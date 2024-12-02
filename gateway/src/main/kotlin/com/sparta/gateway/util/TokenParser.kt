@@ -12,15 +12,15 @@ import org.springframework.web.server.ServerWebExchange
 import javax.crypto.SecretKey
 
 @Component
-class TokenParser (
+class TokenParser(
     @Value("\${security.jwt.key}")
     private val key: String,
     private val redisService: RedisService,
-    ) {
+) {
 
     private val TOKEN_TYPE = "Bearer "
     private val AUTHORITY_KEY = "auth"
-    private var secretKey : SecretKey  = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(key))
+    private var secretKey: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(key))
 
     fun extractToken(exchange: ServerWebExchange): String? {
         val token = exchange.request.headers.getFirst("Authorization")
@@ -31,7 +31,7 @@ class TokenParser (
     }
 
     fun validateToken(token: String) {
-         try {
+        try {
 
             val secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(key))
 
@@ -42,9 +42,18 @@ class TokenParser (
 
         } catch (e: ExpiredJwtException) {
             throw TokenExpiredException()
-        } catch(e : Exception) {
+        } catch (e: Exception) {
             throw TokenNotValidException()
         }
+    }
+
+    fun getUsername(token: String): String {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+            .subject
     }
 
 }

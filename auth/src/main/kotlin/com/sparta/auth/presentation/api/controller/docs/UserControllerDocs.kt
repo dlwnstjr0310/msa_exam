@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 
 @Tag(name = "User", description = "사용자 API")
-interface UserControllerDocs {
+abstract class UserControllerDocs {
 
     @Operation(summary = "회원가입", description = "신규 사용자 회원가입 API 입니다.")
     @ApiResponses(
@@ -41,7 +41,7 @@ interface UserControllerDocs {
         ]
     )
     @PostMapping("/auth/sign-up")
-    fun signUp(@RequestBody request: SignUpRequestDto): Response<Unit>
+    abstract fun signUp(@RequestBody request: SignUpRequestDto): Response<Unit>
 
     @Operation(summary = "로그인", description = "사용자 로그인 API 입니다.")
     @ApiResponses(
@@ -62,7 +62,7 @@ interface UserControllerDocs {
         ]
     )
     @PostMapping("/auth/sign-in")
-    fun signIn(
+    abstract fun signIn(
         request: HttpServletRequest,
         response: HttpServletResponse,
         requestDto: SignInRequestDto,
@@ -90,7 +90,7 @@ interface UserControllerDocs {
         ]
     )
     @PostMapping("/auth/token")
-    fun reissueAccessToken(
+    abstract fun reissueAccessToken(
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): Response<TokenResponseDto>
@@ -113,7 +113,7 @@ interface UserControllerDocs {
         ]
     )
     @PostMapping("/auth/sign-out")
-    fun signOut(
+    abstract fun signOut(
         request: HttpServletRequest,
     ): Response<Unit>
 
@@ -136,7 +136,7 @@ interface UserControllerDocs {
         ]
     )
     @PatchMapping("/auth/modify-password")
-    fun modifyPassword(
+    abstract fun modifyPassword(
         request: HttpServletRequest,
         @RequestBody requestDto: ModifyPasswordRequestDto,
     ): Response<Unit>

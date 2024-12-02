@@ -26,23 +26,23 @@ class User(
     @Size(max = 50)
     @Column(unique = true)
     @Pattern(regexp = CommonConstant.RegExp.EMAIL)
-    var email: String = email
+    val email: String = email
 
     @Size(max = 255)
-    var password: String = password
+    val password: String = password
 
     @NotNull
     @Size(min = 2, max = 10)
-    var name: String = name
+    val name: String = name
 
     @NotNull
     @Size(max = 50)
     @Column(unique = true)
     @Pattern(regexp = CommonConstant.RegExp.PHONE)
-    var phone: String = phone
+    val phone: String = phone
 
     @Enumerated(EnumType.STRING)
-    var role: Role = role
+    val role: Role = role
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

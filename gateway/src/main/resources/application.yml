@@ -19,6 +19,8 @@ spring:
   application:
     name: gateway-server
   cloud:
+    loadbalancer:
+      configurations: weighted
     gateway:
       discovery:
         locator:
@@ -43,6 +45,8 @@ springdoc:
     urls:
       - name: Auth Service
         url: /auth-server/api-docs
+      - name: Product Service
+        url: /product-server/api-docs
 
 logging:
   level:

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 class UserController(
     private val userService: UserService,
-) : UserControllerDocs {
+) : UserControllerDocs() {
 
     @PostMapping("/sign-up")
     override fun signUp(@RequestBody request: SignUpRequestDto): Response<Unit> {

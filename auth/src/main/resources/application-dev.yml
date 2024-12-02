@@ -101,8 +101,7 @@ springdoc:
         disable-swagger-default-url: true
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
-    open-api:
-        service-url: http://localhost:19091
+
 ---
 
 logging:

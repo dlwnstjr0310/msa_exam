@@ -1,9 +1,9 @@
 package com.sparta.auth.presentation.api.exception
 
-open class TokenException(message: String) : RuntimeException(message)
+open class TokenException(val error: Error) : RuntimeException()
 
-class TokenNotValidException : TokenException("토큰이 유효하지 않습니다.")
+class TokenNotValidException : TokenException(Error.TOKEN_NOT_VALID)
 
-class TokenExpiredException : TokenException("토큰이 만료되었습니다.")
+class TokenExpiredException : TokenException(Error.TOKEN_EXPIRED)
 
-class RegisteredInBlackListException : TokenException("블랙리스트에 등록된 토큰입니다.")
+class RegisteredInBlackListException : TokenException(Error.REGISTERED_IN_BLACK_LIST)
