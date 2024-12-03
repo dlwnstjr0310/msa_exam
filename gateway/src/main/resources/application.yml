@@ -47,6 +47,8 @@ springdoc:
         url: /auth-server/api-docs
       - name: Product Service
         url: /product-server/api-docs
+      - name: Order Service
+        url: /order-server/api-docs
 
 logging:
   level:

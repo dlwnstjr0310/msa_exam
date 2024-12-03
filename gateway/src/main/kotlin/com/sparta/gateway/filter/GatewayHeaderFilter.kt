@@ -5,6 +5,7 @@ import com.sparta.gateway.exception.RegisteredInBlackListException
 import com.sparta.gateway.exception.TokenExpiredException
 import com.sparta.gateway.exception.TokenNotValidException
 import com.sparta.gateway.exception.TokenNullException
+import com.sparta.gateway.util.RedisService
 import com.sparta.gateway.util.TokenParser
 import org.springframework.cloud.gateway.filter.GatewayFilterChain
 import org.springframework.cloud.gateway.filter.GlobalFilter
@@ -19,10 +20,11 @@ import java.util.logging.Logger
 class GatewayHeaderFilter(
     private val tokenParser: TokenParser,
     private val filterExceptionHandler: FilterExceptionHandler,
+    private val redisService: RedisService
 ) : GlobalFilter, Ordered {
 
     private val excludedPaths =
-        arrayOf("/", "/auth/**", "/auth-server/**", "/product-server/**", "/order-server", "/swagger-ui/**")
+        arrayOf("/", "/auth/**", "/auth-server/**", "/product-server/**", "/order-server/**", "/swagger-ui/**")
     private val pathMatcher = AntPathMatcher()
     private var logger: Logger = Logger.getLogger(javaClass.name)
 
@@ -36,12 +38,15 @@ class GatewayHeaderFilter(
 
         val token = tokenParser.extractToken(exchange)
 
-        // TODO: 블랙리스트 확인하기
         return if (token == null) {
             throw TokenNullException()
         } else {
             try {
                 tokenParser.validateToken(token)
+
+                if (redisService.isBlackList(token)) {
+                    throw RegisteredInBlackListException()
+                }
             } catch (e: TokenExpiredException) {
                 return filterExceptionHandler.createErrorResponse(exchange.response, Error.TOKEN_EXPIRED)
             } catch (e: RegisteredInBlackListException) {
