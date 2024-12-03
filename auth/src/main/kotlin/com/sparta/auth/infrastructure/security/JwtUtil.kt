@@ -20,7 +20,7 @@ class JwtUtil(
     @Value("\${security.jwt.key}")
     private val key: String,
 
-) {
+    ) {
 
     private val issuer = "ME"
     private val tokenType = "Bearer "
@@ -33,7 +33,6 @@ class JwtUtil(
 
         if (token.startsWith("Bearer ")) {
             val jwt = token.substring(7)
-            validateToken(jwt)
             return jwt
         } else {
             throw TokenNotValidException()

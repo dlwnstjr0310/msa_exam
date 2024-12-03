@@ -1,5 +1,9 @@
 package com.sparta.gateway.filter
 
+import com.sparta.gateway.exception.Error
+import com.sparta.gateway.exception.RegisteredInBlackListException
+import com.sparta.gateway.exception.TokenExpiredException
+import com.sparta.gateway.exception.TokenNotValidException
 import com.sparta.gateway.exception.TokenNullException
 import com.sparta.gateway.util.TokenParser
 import org.springframework.cloud.gateway.filter.GatewayFilterChain
@@ -13,10 +17,12 @@ import java.util.logging.Logger
 
 @Component
 class GatewayHeaderFilter(
-    private val tokenParser: TokenParser
+    private val tokenParser: TokenParser,
+    private val filterExceptionHandler: FilterExceptionHandler,
 ) : GlobalFilter, Ordered {
 
-    private val excludedPaths = arrayOf("/", "/auth/**", "/auth-server/**", "/product-server/**", "/swagger-ui/**")
+    private val excludedPaths =
+        arrayOf("/", "/auth/**", "/auth-server/**", "/product-server/**", "/order-server", "/swagger-ui/**")
     private val pathMatcher = AntPathMatcher()
     private var logger: Logger = Logger.getLogger(javaClass.name)
 
@@ -30,14 +36,19 @@ class GatewayHeaderFilter(
 
         val token = tokenParser.extractToken(exchange)
 
-        // TODO: 어떻게 할지 나중에 정하기
-        // 블랙리스트도 확인하기
-        // 아마.. 토큰 만료시에는 refreshToken 을 통해 재발급하고 다시 넣어주기?
-        // 응답 핸들러 만들어야함
+        // TODO: 블랙리스트 확인하기
         return if (token == null) {
             throw TokenNullException()
         } else {
-            tokenParser.validateToken(token)
+            try {
+                tokenParser.validateToken(token)
+            } catch (e: TokenExpiredException) {
+                return filterExceptionHandler.createErrorResponse(exchange.response, Error.TOKEN_EXPIRED)
+            } catch (e: RegisteredInBlackListException) {
+                return filterExceptionHandler.createErrorResponse(exchange.response, Error.REGISTERED_IN_BLACK_LIST)
+            } catch (e: TokenNotValidException) {
+                return filterExceptionHandler.createErrorResponse(exchange.response, Error.TOKEN_NOT_VALID)
+            }
             chain.filter(
                 exchange.mutate()
                     .request(

@@ -15,6 +15,7 @@ import com.sparta.auth.presentation.api.request.ModifyPasswordRequestDto
 import com.sparta.auth.presentation.api.request.SignInRequestDto
 import com.sparta.auth.presentation.api.request.SignUpRequestDto
 import com.sparta.auth.presentation.api.response.TokenResponseDto
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.repository.findByIdOrNull
@@ -85,7 +86,11 @@ class UserService(
     fun reissueAccessToken(request: HttpServletRequest, response: HttpServletResponse): TokenResponseDto {
         val token = jwtUtil.extractToken(request)
 
-        val username = jwtUtil.getUsername(token)
+        val username: String = try {
+            jwtUtil.getUsername(token)
+        } catch (e: ExpiredJwtException) {
+            e.claims.subject
+        }
 
         val refreshToken = redisService.getRefreshToken(username) ?: throw TokenNotValidException()
 
@@ -112,6 +117,7 @@ class UserService(
 
     fun signOut(request: HttpServletRequest) {
         val token = jwtUtil.extractToken(request)
+        jwtUtil.validateToken(token)
         val username = jwtUtil.getUsername(token)
 
         redisService.storeInBlackList(token, accessTokenExpireTimeMillis)

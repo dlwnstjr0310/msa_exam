@@ -30,7 +30,8 @@ class SwaggerConfig(
 
         val components = Components()
             .addSecuritySchemes(
-                jwtSchemeName, SecurityScheme()
+                jwtSchemeName,
+                SecurityScheme()
                     .name(jwtSchemeName)
                     .type(SecurityScheme.Type.HTTP)
                     .scheme("Bearer")
@@ -40,7 +41,7 @@ class SwaggerConfig(
         return OpenAPI()
             .info(info)
             .components(components)
-            .addServersItem(Server().url("/${port}"))
+            .addServersItem(Server().url("/$port"))
             .addSecurityItem(securityRequirement)
     }
 }
